@@ -19,6 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Score;
 
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.PlayerInventory;
+
 import java.util.ArrayList;
 
 public class CMDInterpreter implements CommandExecutor {
@@ -49,8 +52,14 @@ public class CMDInterpreter implements CommandExecutor {
 
         if (args[0].equals("run")) {
             sender.sendMessage(ChatColor.GREEN + "Running...");
-            interpret();
+            interpret(0);
             sender.sendMessage(ChatColor.GREEN + "Done.");
+            return true;
+        }
+
+        if (args[0].equals("onInput")) {
+            sender.sendMessage(ChatColor.GREEN + "INPUT!");
+            readInput();
             return true;
         }
 
@@ -58,22 +67,26 @@ public class CMDInterpreter implements CommandExecutor {
         return true;
     }
 
-    private void interpret() {
-        String[] r_type = { "add", "jumpCon" };  // 3 bitar o, 2 bitar $rt, 2 bitar $rs, 1 bit imm (add imm = sign 0=(+) 1=(-))
-        String[] j_type = { "jump" };   // 3 bitar o, 5 bitar imm
-        String[] spec_type = {"input", "print", "set", "exit", "addi" }; // (I förekommande ordning) 3 bitar o, 2 bitar $rt, 3 bitar
-                                                           // bajs | 3 bitar o, 5 bitar imm eller 3 bitar o, 2 bitar
-                                                           // $rt, resterande bajs | 3 bitar, 2 bitar rt, 3 bitar imm | 3 bitar o, resterande bajs
+    private void interpret(int startVal) {
+        String[] r_type = { "add", "jumpCon" }; // 3 bitar o, 2 bitar $rt, 2 bitar $rs, 1 bit imm (add imm = sign 0=(+)
+                                                // 1=(-))
+        String[] j_type = { "jump" }; // 3 bitar o, 5 bitar imm
+        String[] spec_type = { "input", "print", "set", "exit", "addi" }; // (I förekommande ordning) 3 bitar o, 2 bitar
+                                                                          // $rt, 3 bitar
+        // bajs | 3 bitar o, 5 bitar imm eller 3 bitar o, 2 bitar
+        // $rt, resterande bajs | 3 bitar, 2 bitar rt, 3 bitar imm | 3 bitar o,
+        // resterande bajs
 
         FileConfiguration config = p.getConfig();
 
         chest = (Chest) p.getServer().getWorld("World").getBlockAt(0, 56, 0).getState();
         ItemStack[] itemArray = chest.getInventory().getContents();
+        p.getServer().broadcastMessage("" + itemArray.length);
 
-        int square = 0;
+        int square = startVal;
         try {
-            while (square < itemArray.length - 1) { // Tobias dont judge the if statement för switch funkade inte for some
-                                               // anledning
+            while (square < itemArray.length - 1) { // Tobias dont judge the if statement för switch funkade inte for
+                                                    // some anledning
                 if (itemArray[square] == null) {
                     square++;
                     continue;
@@ -88,31 +101,32 @@ public class CMDInterpreter implements CommandExecutor {
                     sub(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]); // rt, rs, imm
                     square += 4;
                 } else if (itemArray[square].getType().equals(Material.MAGENTA_GLAZED_TERRACOTTA)) {
-                    square = jump(itemArray[square+1], square); // imm
+                    square = jump(itemArray[square + 1], square); // imm
                 } else if (itemArray[square].getType().equals(Material.ARROW)) {
-                    set(itemArray[square+1], itemArray[square+2]); // rt, imm
+                    set(itemArray[square + 1], itemArray[square + 2]); // rt, imm
                     square += 3;
-                } else if (itemArray[square].getType().equals(Material.NAME_TAG)){
-                    input(itemArray[square+1]);
+                } else if (itemArray[square].getType().equals(Material.NAME_TAG)) {
+                    input(itemArray[square + 1]);
                     square += 2;
                 }
-                
+
                 else {
                     square++; // Fix for temp bug where if you put a lone paper it will infinite loop
                 }
             }
         } catch (Exception e) {
-            p.getServer().broadcastMessage(ChatColor.RED + "Ouef. (Invalid input)");
+            p.getServer().broadcastMessage(ChatColor.RED + "Ouef. (Invalid input):" + e);
             e.printStackTrace();
         }
     }
 
-    private void add(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt + rs + imm (o = 3 bits, rt = 2 bits, rs = 2 bits, imm = 1 bit) (r-type)
+    private void add(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt + rs + imm (o = 3 bits, rt = 2 bits, rs = 2
+                                                                  // bits, imm = 1 bit) (r-type)
         Score rtScore = getScore(rt);
         if (isZeroRegister(rtScore)) {
             return;
         }
-        
+
         Score rsScore = getScore(rs);
         int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
         if (immVal != 0 && immVal != 1) { // Only 1 bit sadly ):
@@ -124,7 +138,8 @@ public class CMDInterpreter implements CommandExecutor {
         rtScore.setScore(rtScore.getScore() + rsScore.getScore() + immVal);
     }
 
-    private void sub(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt - rs - imm (o = 3 bits, rt = 2 bits, rs = 2 bits, imm = 1 bit) (r-type)
+    private void sub(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt - rs - imm (o = 3 bits, rt = 2 bits, rs = 2
+                                                                  // bits, imm = 1 bit) (r-type)
         Score rtScore = getScore(rt);
         if (isZeroRegister(rtScore)) {
             return;
@@ -167,12 +182,29 @@ public class CMDInterpreter implements CommandExecutor {
         if (isZeroRegister(rtScore)) {
             return;
         }
-        chest.getLocation().add(0, -2, -2).getBlock().setType(Material.REDSTONE_BLOCK);
-        Lectern lectern = (Lectern) chest.getLocation().add(-2, 0, 0).getBlock().getState();
+        chest.getLocation().add(2, 0, 0).getBlock().setType(Material.LECTERN);
+        Lectern lectern = (Lectern) chest.getLocation().add(2, 0, 0).getBlock().getState();
+        // chest.getLocation().add(0, -2, -2).getBlock().setType(Material.AIR);
 
         // Spawn effect
         Location l = lectern.getLocation();
         p.getServer().getWorld("world").playEffect(l, Effect.END_GATEWAY_SPAWN, 1000);
+
+        for (Player player : p.getServer().getOnlinePlayers()) {
+            PlayerInventory inv = player.getInventory();
+            inv.setItemInMainHand(new ItemStack(Material.WRITABLE_BOOK, 1));
+        }
+    }
+
+    private void readInput() {
+        Lectern lectern = (Lectern) chest.getLocation().add(2, 0, 0).getBlock().getState();
+        ItemStack[] bookArray = lectern.getInventory().getContents();
+        p.getServer().getWorld("world").playEffect(lectern.getLocation(), Effect.END_GATEWAY_SPAWN, 1000);
+        lectern.getLocation().getBlock().setType(Material.AIR);
+
+        String[] bookSplit = bookArray[0].getItemMeta().getAsString().split("\"");
+        int bookVal = Integer.parseInt(bookSplit[1]); // Value written inside book
+        p.getServer().broadcastMessage(ChatColor.BLUE + "" + bookVal);
     }
 
     private Score getScore(ItemStack rt) {
