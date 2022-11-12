@@ -18,13 +18,11 @@ public class CMDInterpreter implements CommandExecutor {
     private Chest chest;
     private ArrayList<Score> scores;
 
-
     public CMDInterpreter(JavaPlugin p, ArrayList<Score> scores) {
         this.p = p;
         this.scores = scores;
         p.getLogger().info("Interpreter is enabled.");
     }
-
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -53,18 +51,22 @@ public class CMDInterpreter implements CommandExecutor {
     }
 
     private void interpret() {
-        String[] r_type = {"add", "sub", "set", "jumpCon"}; // 3 bitar o, 2 bitar $rt, 2 bitar $rs, 1 bit imm
-        String[] j_type = {"jump"}; // 3 bitar o, 5 bitar imm
-        String[] spec_type = {"input", "print", "exit"}; // (I förekommande ordning) 3 bitar o, 2 bitar $rt, 3 bitar bajs | 3 bitar o, 5 bitar imm eller 3 bitar o, 2 bitar $rt, resterande bajs | 3 bitar o, resterande bajs 
+        String[] r_type = { "add", "sub", "set", "jumpCon" }; // 3 bitar o, 2 bitar $rt, 2 bitar $rs, 1 bit imm // set
+                                                              // seperate type?? Then: 3 bit o, 2 bit $rt, 3 bit imm
+        String[] j_type = { "jump" }; // 3 bitar o, 5 bitar imm
+        String[] spec_type = { "input", "print", "exit" }; // (I förekommande ordning) 3 bitar o, 2 bitar $rt, 3 bitar
+                                                           // bajs | 3 bitar o, 5 bitar imm eller 3 bitar o, 2 bitar
+                                                           // $rt, resterande bajs | 3 bitar o, resterande bajs
 
         FileConfiguration config = p.getConfig();
 
         chest = (Chest) p.getServer().getWorld("World").getBlockAt(0, 56, 0).getState();
         ItemStack[] itemArray = chest.getInventory().getContents();
 
-        int i = 0; 
+        int i = 0;
         try {
-            while (i < itemArray.length-1) { // Tobias dont judge the if statement för switch funkade inte for some anledning
+            while (i < itemArray.length - 1) { // Tobias dont judge the if statement för switch funkade inte for some
+                                               // anledning
                 if (itemArray[i] == null) {
                     i++;
                     continue;
@@ -73,15 +75,15 @@ public class CMDInterpreter implements CommandExecutor {
                     // jumCon(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
                     i += 4;
                 } else if (itemArray[i].getType().equals(Material.FERN)) {
-                    add(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
+                    add(itemArray[i + 1], itemArray[i + 2], itemArray[i + 3]); // rt, rs, imm
                     i += 4;
-                } else if (itemArray[i].getType().equals(Material.IRON_NUGGET)){
-                    sub(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
+                } else if (itemArray[i].getType().equals(Material.IRON_NUGGET)) {
+                    sub(itemArray[i + 1], itemArray[i + 2], itemArray[i + 3]); // rt, rs, imm
                     i += 4;
-                } else if (itemArray[i].getType().equals(Material.MAGENTA_GLAZED_TERRACOTTA)){
+                } else if (itemArray[i].getType().equals(Material.MAGENTA_GLAZED_TERRACOTTA)) {
                     // jump(itemArray[i+1]); // imm
                     i += 2;
-                } else if (itemArray[i].getType().equals(Material.ARROW)){
+                } else if (itemArray[i].getType().equals(Material.ARROW)) {
                     // set(itemArray[i+1], itemArray[i+2]); // rt, imm
                     i += 3;
                 } else {
@@ -93,7 +95,8 @@ public class CMDInterpreter implements CommandExecutor {
         }
     }
 
-    private void add(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt + rs + imm (o = 3 bits, rt = 2 bits, rs = 2 bits, imm = 1 bit)
+    private void add(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt + rs + imm (o = 3 bits, rt = 2 bits, rs = 2
+                                                                  // bits, imm = 1 bit)
         Score rtScore = getScore(rt);
         if (rtScore.equals(scores.get(0))) { // Check if rt (first arg) == $0, which is NOT allowed.
             p.getServer().broadcastMessage(ChatColor.RED + "Cannot add to $0.");
@@ -110,7 +113,8 @@ public class CMDInterpreter implements CommandExecutor {
         rtScore.setScore(rtScore.getScore() + rsScore.getScore() + immVal);
     }
 
-    private void sub(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt - rs - imm (o = 3 bits, rt = 2 bits, rs = 2 bits, imm = 1 bit)
+    private void sub(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt - rs - imm (o = 3 bits, rt = 2 bits, rs = 2
+                                                                  // bits, imm = 1 bit)
         Score rtScore = getScore(rt);
         if (rtScore.equals(scores.get(0))) { // Check if rt (first arg) == $0, which is NOT allowed.
             p.getServer().broadcastMessage(ChatColor.RED + "Cannot subtract from $0.");
@@ -125,6 +129,23 @@ public class CMDInterpreter implements CommandExecutor {
         // dont need to check if > or < int32 max/min because java is default int32
         // it will throw an error anyway
         rtScore.setScore(rtScore.getScore() - rsScore.getScore() - immVal);
+    }
+
+    private void set(ItemStack rt, ItemStack imm) { // rt = imm (o = 3 bits, rt = 2 bits, imm = 3 bits)
+        Score rtScore = getScore(rt);
+        if (rtScore.equals(scores.get(0))) { // Check if rt (first arg) == $0, which is NOT allowed.
+            p.getServer().broadcastMessage(ChatColor.RED + "Cannot add to $0.");
+            return;
+        }
+
+        int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
+        if (immVal < 0 && 7 < immVal) { // Only 3 bit happy :)
+            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 3 bit (0-7)");
+            return;
+        }
+        // dont need to check if > or < int32 max/min because java is default int32
+        // it will throw an error anyway
+        rtScore.setScore(immVal);
     }
 
     private Score getScore(ItemStack rt) {
@@ -145,37 +166,35 @@ public class CMDInterpreter implements CommandExecutor {
 }
 
 /*
-Variabels:
-minecraft:paper
-    Represents Int (ex. paper named 100 is Int 100)
-
-
-Instructions:
-minecraft:fern
-    add rt rs imm (rt = rt + rs + imm)
-
-minecraft:iron_nugget
-    sub rt rs imm (rt = rt - rs - imm)
-
-minecraft:magenta_glazed_terracotta
-    jump imm (jumps imm)
-
-minecraft:arrow
-    set rt imm (sets rt to imm)
-
-minecraft:comparator
-    jump imm if rs == rt
-
-
-Special:
-minecraft:oak_sign
-    Prints register $r0 to chat
-
-minecraft:dragon_head
-    Exits program
-
-minecraft:name_tag
-    Wait for input in pedestal
+ * Variabels:
+ * minecraft:paper
+ * Represents Int (ex. paper named 100 is Int 100)
+ * 
+ * 
+ * Instructions:
+ * minecraft:fern
+ * add rt rs imm (rt = rt + rs + imm)
+ * 
+ * minecraft:iron_nugget
+ * sub rt rs imm (rt = rt - rs - imm)
+ * 
+ * minecraft:magenta_glazed_terracotta
+ * jump imm (jumps imm)
+ * 
+ * minecraft:arrow
+ * set rt imm (sets rt to imm)
+ * 
+ * minecraft:comparator
+ * jump imm if rs == rt
+ * 
+ * 
+ * Special:
+ * minecraft:oak_sign
+ * Prints register $r0 to chat
+ * 
+ * minecraft:dragon_head
+ * Exits program
+ * 
+ * minecraft:name_tag
+ * Wait for input in pedestal
  */
-
-
