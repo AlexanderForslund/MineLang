@@ -28,6 +28,8 @@ public class CMDInterpreter implements CommandExecutor {
     private JavaPlugin p;
     private Chest chest;
     private ArrayList<Score> scores;
+    private int square;
+    private ItemStack[] itemArray;
 
     public CMDInterpreter(JavaPlugin p, ArrayList<Score> scores) {
         this.p = p;
@@ -52,7 +54,8 @@ public class CMDInterpreter implements CommandExecutor {
 
         if (args[0].equals("run")) {
             sender.sendMessage(ChatColor.GREEN + "Running...");
-            interpret(0);
+            square = 0;
+            interpret();
             sender.sendMessage(ChatColor.GREEN + "Done.");
             return true;
         }
@@ -67,7 +70,7 @@ public class CMDInterpreter implements CommandExecutor {
         return true;
     }
 
-    private void interpret(int startVal) {
+    private void interpret() {
         String[] r_type = { "add", "jumpCon" }; // 3 bitar o, 2 bitar $rt, 2 bitar $rs, 1 bit imm (add imm = sign 0=(+)
                                                 // 1=(-))
         String[] j_type = { "jump" }; // 3 bitar o, 5 bitar imm
@@ -80,10 +83,9 @@ public class CMDInterpreter implements CommandExecutor {
         FileConfiguration config = p.getConfig();
 
         chest = (Chest) p.getServer().getWorld("World").getBlockAt(0, 56, 0).getState();
-        ItemStack[] itemArray = chest.getInventory().getContents();
+        itemArray = chest.getInventory().getContents();
         p.getServer().broadcastMessage("" + itemArray.length);
 
-        int square = startVal;
         try {
             while (square < itemArray.length - 1) { // Tobias dont judge the if statement för switch funkade inte for
                                                     // some anledning
@@ -107,10 +109,8 @@ public class CMDInterpreter implements CommandExecutor {
                     square += 3;
                 } else if (itemArray[square].getType().equals(Material.NAME_TAG)) {
                     input(itemArray[square + 1]);
-                    square += 2;
-                }
-
-                else {
+                    break;
+                } else {
                     square++; // Fix for temp bug where if you put a lone paper it will infinite loop
                 }
             }
@@ -199,12 +199,16 @@ public class CMDInterpreter implements CommandExecutor {
     private void readInput() {
         Lectern lectern = (Lectern) chest.getLocation().add(2, 0, 0).getBlock().getState();
         ItemStack[] bookArray = lectern.getInventory().getContents();
-        p.getServer().getWorld("world").playEffect(lectern.getLocation(), Effect.END_GATEWAY_SPAWN, 1000);
+        p.getServer().getWorld("world").playEffect(lectern.getLocation(), Effect.GHAST_SHOOT, 1000);
         lectern.getLocation().getBlock().setType(Material.AIR);
 
         String[] bookSplit = bookArray[0].getItemMeta().getAsString().split("\"");
         int bookVal = Integer.parseInt(bookSplit[1]); // Value written inside book
-        p.getServer().broadcastMessage(ChatColor.BLUE + "" + bookVal);
+
+        Score rtScore = getScore(itemArray[square + 1]);
+        rtScore.setScore(bookVal);
+        square += 2;
+        interpret();
     }
 
     private Score getScore(ItemStack rt) {
