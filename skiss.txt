@@ -29,3 +29,13 @@ minecraft:dragon_head
 
 minecraft:name_tag
     Wait for input in pedestal
+
+
+Lectern lectern = (Lectern) chest.getLocation().add(-2, 0, 0).getBlock();
+        org.bukkit.block.data.type.Lectern lecternData = (org.bukkit.block.data.type.Lectern) lectern.getBlockData();
+        lecternData.setFacing(BlockFace.EAST);
+        lectern.setBlockData(lecternData);
+        
+
+        //((Directional) lectern.getBlockData()).setFacing(BlockFace.EAST); // WHY NOT ROTATE
+        lectern.getBlock().getState().update();
