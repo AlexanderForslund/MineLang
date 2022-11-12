@@ -97,7 +97,10 @@ public class CMDInterpreter implements CommandExecutor {
                     // jumCon(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
                     square += 4;
                 } else if (itemArray[square].getType().equals(Material.FERN)) {
-                    add(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]); // rt, rs, imm
+                    addi(itemArray[square + 1], itemArray[square + 2]); // rt, rs, imm
+                    square += 3;
+                } else if (itemArray[square].getType().equals(Material.NETHER_STAR)) {
+                    add(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]);
                     square += 4;
                 } else if (itemArray[square].getType().equals(Material.IRON_NUGGET)) {
                     sub(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]); // rt, rs, imm
@@ -115,7 +118,7 @@ public class CMDInterpreter implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
-            p.getServer().broadcastMessage(ChatColor.RED + "Ouef. (Invalid input):" + e);
+            p.getServer().broadcastMessage(ChatColor.RED + "Ouef. (Invalid input)");
             e.printStackTrace();
         }
     }
@@ -129,13 +132,30 @@ public class CMDInterpreter implements CommandExecutor {
 
         Score rsScore = getScore(rs);
         int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
-        if (immVal != 0 && immVal != 1) { // Only 1 bit sadly ):
-            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 1 bit (0-1)");
+        if (immVal == 0) {
+            rtScore.setScore(rtScore.getScore() + rsScore.getScore());
+        } else if (immVal == 1) {
+            rtScore.setScore(rtScore.getScore() - rsScore.getScore());
+        } else {
+            p.getServer().broadcastMessage(
+                    ChatColor.RED + "Bad immediate value! Maximum 1 bit (0-1), where 0 = + and 1 = -");
+        }
+    }
+
+    private void addi(ItemStack rt, ItemStack imm) { // rt = rt + imm (o = 3 bits, rt = 2 bits, imm = 3 bit) (r-type)
+        Score rtScore = getScore(rt);
+        if (isZeroRegister(rtScore)) {
             return;
         }
-        // dont need to check if > or < int32 max/min because java is default int32
-        // it will throw an error anyway
-        rtScore.setScore(rtScore.getScore() + rsScore.getScore() + immVal);
+
+        int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
+        if (immVal >= -3 && immVal <= 3) {
+            rtScore.setScore(rtScore.getScore() + immVal);
+        } else {
+            p.getServer().broadcastMessage(
+                    ChatColor.RED
+                            + "Bad immediate value! Maximum 3 bit, first bit is sign either - or none and values range from -3 to 3");
+        }
     }
 
     private void sub(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt - rs - imm (o = 3 bits, rt = 2 bits, rs = 2
@@ -244,7 +264,10 @@ public class CMDInterpreter implements CommandExecutor {
  * 
  * Instructions:
  * minecraft:fern
- * add rt rs imm (rt = rt + rs + imm)
+ * add rt rs imm (rt = rt [imm == 1 ? - : +] rs)
+ * 
+ * minecraft:fern
+ * addi rt imm (rt += imm) imm first char either - or nada.
  * 
  * minecraft:iron_nugget
  * sub rt rs imm (rt = rt - rs - imm)
