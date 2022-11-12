@@ -1,6 +1,6 @@
 main: dev.forslund.mc.MineLang
 name: MineLang
-version: 0.1
+version: 0.9
 description: MineLang interpreter.
 api-version: 1.19
 prefix: MineLang

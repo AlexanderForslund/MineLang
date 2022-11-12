@@ -17,7 +17,6 @@ public class MineLang extends JavaPlugin {
     @Override
     public void onEnable() {
         getLogger().info("MineLang helper is enabled.");
-        saveDefaultConfig();
 
         createScoreBoard();
 
