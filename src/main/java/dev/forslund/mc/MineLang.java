@@ -1,4 +1,5 @@
 package dev.forslund.mc;
+import dev.forslund.mc.commands.CMDDebug;
 import dev.forslund.mc.commands.CMDInterpreter;
 import dev.forslund.mc.events.JoinListener;
 import org.bukkit.ChatColor;
@@ -23,6 +24,7 @@ public class MineLang extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JoinListener(sb), this);
 
         getCommand("interpreter").setExecutor(new CMDInterpreter(this, scores));
+        getCommand("debug").setExecutor(new CMDDebug(this, scores));
     }
 
     @Override
