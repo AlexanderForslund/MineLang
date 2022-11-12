@@ -3,17 +3,13 @@ package dev.forslund.mc.commands;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.inventory.DoubleChestInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
 
@@ -57,9 +53,9 @@ public class CMDInterpreter implements CommandExecutor {
     }
 
     private void interpret() {
-        String[] r_type = {"add", "sub", "set"};
-        String[] j_type = {"jump", "jumpCon"};
-        String[] spec_type = {"input", "print", "exit"};
+        String[] r_type = {"add", "sub", "set", "jumpCon"}; // 3 bitar o, 2 bitar $rt, 2 bitar $rs, 1 bit imm
+        String[] j_type = {"jump"}; // 3 bitar o, 5 bitar imm
+        String[] spec_type = {"input", "print", "exit"}; // (I förekommande ordning) 3 bitar o, 2 bitar $rt, 3 bitar bajs | 3 bitar o, 5 bitar imm eller 3 bitar o, 2 bitar $rt, resterande bajs | 3 bitar o, resterande bajs 
 
         FileConfiguration config = p.getConfig();
 
@@ -88,22 +84,30 @@ public class CMDInterpreter implements CommandExecutor {
                 } else if (itemArray[i].getType().equals(Material.ARROW)){
                     // set(itemArray[i+1], itemArray[i+2]); // rt, imm
                     i += 3;
-                } 
-            }    
+                } else {
+                    i++; // Fix for temp bug where if you put a lone paper it will infinite loop
+                }
+            }
         } catch (Exception e) {
             p.getServer().broadcastMessage(ChatColor.RED + "Ouef. (Invalid input)");
         }
     }
 
-    private void add(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt + rs + imm
+    private void add(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt + rs + imm (o = 3 bits, rt = 2 bits, rs = 2 bits, imm = 1 bit)
         Score rtScore = getScore(rt);
+        if (rtScore.equals(scores.get(0))) { // Check if rt (first arg) == $0, which is NOT allowed.
+            p.getServer().broadcastMessage(ChatColor.RED + "Cannot add to $0.");
+            return;
+        }
         Score rsScore = getScore(rs);
         int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
-        p.getServer().broadcastMessage(""+rtScore);
-        p.getServer().broadcastMessage(""+rsScore);
-        p.getServer().broadcastMessage(""+immVal);
+        if (immVal != 0 && immVal != 1) { // Only 1 bit sadly ):
+            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 1 bit (0-1)");
+            return;
+        }
+        // dont need to check if > or < int32 max/min because java is default int32
+        // it will throw an error anyway
         rtScore.setScore(rtScore.getScore() + rsScore.getScore() + immVal);
-        p.getServer().broadcastMessage(""+rtScore.getScore());
     }
 
     private Score getScore(ItemStack rt) {
@@ -118,7 +122,7 @@ public class CMDInterpreter implements CommandExecutor {
             return scores.get(0); // $0
         } else {
             p.getServer().broadcastMessage("bad bad");
-            return null; // Bad bad code.
+            return null; // Bad code but whatever.
         }
     }
 }

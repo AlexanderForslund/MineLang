@@ -45,6 +45,7 @@ public class MineLang extends JavaPlugin {
         Score r2 = objective.getScore("$r2:");
         r2.setScore(0);
 
+        // Final?
         Score zero = objective.getScore("$0:");
         zero.setScore(0);
 
