@@ -1,3 +1,13 @@
 main: dev.forslund.mc.MineLang
 name: MineLang
 version: 0.1
+description: MineLang interpreter.
+api-version: 1.19
+prefix: MineLang
+authors: [ Duckkyy ]
+website: forslund.dev
+commands:
+  interpreter:
+    aliases: [ i ]
+    usage: /<command> [run/reset]
+    description: Interpreter commands.

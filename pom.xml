@@ -7,14 +7,15 @@
   <groupId>dev.forslund.mc</groupId>
   <artifactId>minelang</artifactId>
   <version>0.1</version>
+  <packaging>jar</packaging>
 
   <name>minelang</name>
   <url>https://forslund.dev</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.17.0.1</maven.compiler.source>
-    <maven.compiler.target>1.17.0.1</maven.compiler.target>
+    <maven.compiler.source>1.17</maven.compiler.source>
+    <maven.compiler.target>1.17</maven.compiler.target>
   </properties>
 
   <repositories>
