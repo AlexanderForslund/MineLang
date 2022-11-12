@@ -76,7 +76,7 @@ public class CMDInterpreter implements CommandExecutor {
                     add(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
                     i += 4;
                 } else if (itemArray[i].getType().equals(Material.IRON_NUGGET)){
-                    // sub(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
+                    sub(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
                     i += 4;
                 } else if (itemArray[i].getType().equals(Material.MAGENTA_GLAZED_TERRACOTTA)){
                     // jump(itemArray[i+1]); // imm
@@ -108,6 +108,23 @@ public class CMDInterpreter implements CommandExecutor {
         // dont need to check if > or < int32 max/min because java is default int32
         // it will throw an error anyway
         rtScore.setScore(rtScore.getScore() + rsScore.getScore() + immVal);
+    }
+
+    private void sub(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt - rs - imm (o = 3 bits, rt = 2 bits, rs = 2 bits, imm = 1 bit)
+        Score rtScore = getScore(rt);
+        if (rtScore.equals(scores.get(0))) { // Check if rt (first arg) == $0, which is NOT allowed.
+            p.getServer().broadcastMessage(ChatColor.RED + "Cannot subtract from $0.");
+            return;
+        }
+        Score rsScore = getScore(rs);
+        int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
+        if (immVal != 0 && immVal != 1) { // Only 1 bit sadly ):
+            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 1 bit (0-1)");
+            return;
+        }
+        // dont need to check if > or < int32 max/min because java is default int32
+        // it will throw an error anyway
+        rtScore.setScore(rtScore.getScore() - rsScore.getScore() - immVal);
     }
 
     private Score getScore(ItemStack rt) {
