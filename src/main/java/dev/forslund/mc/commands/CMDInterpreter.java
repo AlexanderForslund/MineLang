@@ -28,6 +28,8 @@ public class CMDInterpreter implements CommandExecutor {
     private JavaPlugin p;
     private Chest chest;
     private ArrayList<Score> scores;
+    private int square;
+    private ItemStack[] itemArray;
 
     public CMDInterpreter(JavaPlugin p, ArrayList<Score> scores) {
         this.p = p;
@@ -52,7 +54,8 @@ public class CMDInterpreter implements CommandExecutor {
 
         if (args[0].equals("run")) {
             sender.sendMessage(ChatColor.GREEN + "Running...");
-            interpret(0);
+            square = 0;
+            interpret();
             sender.sendMessage(ChatColor.GREEN + "Done.");
             return true;
         }
@@ -67,7 +70,7 @@ public class CMDInterpreter implements CommandExecutor {
         return true;
     }
 
-    private void interpret(int startVal) {
+    private void interpret() {
         String[] r_type = { "add", "jumpCon" }; // 3 bitar o, 2 bitar $rt, 2 bitar $rs, 1 bit imm (add imm = sign 0=(+)
                                                 // 1=(-))
         String[] j_type = { "jump" }; // 3 bitar o, 5 bitar imm
@@ -80,10 +83,9 @@ public class CMDInterpreter implements CommandExecutor {
         FileConfiguration config = p.getConfig();
 
         chest = (Chest) p.getServer().getWorld("World").getBlockAt(0, 56, 0).getState();
-        ItemStack[] itemArray = chest.getInventory().getContents();
+        itemArray = chest.getInventory().getContents();
         p.getServer().broadcastMessage("" + itemArray.length);
 
-        int square = startVal;
         try {
             while (square < itemArray.length - 1) { // Tobias dont judge the if statement för switch funkade inte for
                                                     // some anledning
@@ -95,7 +97,10 @@ public class CMDInterpreter implements CommandExecutor {
                     // jumCon(itemArray[i+1], itemArray[i+2], itemArray[i+3]); // rt, rs, imm
                     square += 4;
                 } else if (itemArray[square].getType().equals(Material.FERN)) {
-                    add(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]); // rt, rs, imm
+                    addi(itemArray[square + 1], itemArray[square + 2]); // rt, rs, imm
+                    square += 3;
+                } else if (itemArray[square].getType().equals(Material.NETHER_STAR)) {
+                    add(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]);
                     square += 4;
                 } else if (itemArray[square].getType().equals(Material.IRON_NUGGET)) {
                     sub(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]); // rt, rs, imm
@@ -107,15 +112,13 @@ public class CMDInterpreter implements CommandExecutor {
                     square += 3;
                 } else if (itemArray[square].getType().equals(Material.NAME_TAG)) {
                     input(itemArray[square + 1]);
-                    square += 2;
-                }
-
-                else {
+                    break;
+                } else {
                     square++; // Fix for temp bug where if you put a lone paper it will infinite loop
                 }
             }
         } catch (Exception e) {
-            p.getServer().broadcastMessage(ChatColor.RED + "Ouef. (Invalid input):" + e);
+            p.getServer().broadcastMessage(ChatColor.RED + "Ouef. (Invalid input)");
             e.printStackTrace();
         }
     }
@@ -129,13 +132,30 @@ public class CMDInterpreter implements CommandExecutor {
 
         Score rsScore = getScore(rs);
         int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
-        if (immVal != 0 && immVal != 1) { // Only 1 bit sadly ):
-            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 1 bit (0-1)");
+        if (immVal == 0) {
+            rtScore.setScore(rtScore.getScore() + rsScore.getScore());
+        } else if (immVal == 1) {
+            rtScore.setScore(rtScore.getScore() - rsScore.getScore());
+        } else {
+            p.getServer().broadcastMessage(
+                    ChatColor.RED + "Bad immediate value! Maximum 1 bit (0-1), where 0 = + and 1 = -");
+        }
+    }
+
+    private void addi(ItemStack rt, ItemStack imm) { // rt = rt + imm (o = 3 bits, rt = 2 bits, imm = 3 bit) (r-type)
+        Score rtScore = getScore(rt);
+        if (isZeroRegister(rtScore)) {
             return;
         }
-        // dont need to check if > or < int32 max/min because java is default int32
-        // it will throw an error anyway
-        rtScore.setScore(rtScore.getScore() + rsScore.getScore() + immVal);
+
+        int immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
+        if (immVal >= -3 && immVal <= 3) {
+            rtScore.setScore(rtScore.getScore() + immVal);
+        } else {
+            p.getServer().broadcastMessage(
+                    ChatColor.RED
+                            + "Bad immediate value! Maximum 3 bit, first bit is sign either - or none and values range from -3 to 3");
+        }
     }
 
     private void sub(ItemStack rt, ItemStack rs, ItemStack imm) { // rt = rt - rs - imm (o = 3 bits, rt = 2 bits, rs = 2
@@ -199,12 +219,16 @@ public class CMDInterpreter implements CommandExecutor {
     private void readInput() {
         Lectern lectern = (Lectern) chest.getLocation().add(2, 0, 0).getBlock().getState();
         ItemStack[] bookArray = lectern.getInventory().getContents();
-        p.getServer().getWorld("world").playEffect(lectern.getLocation(), Effect.END_GATEWAY_SPAWN, 1000);
+        p.getServer().getWorld("world").playEffect(lectern.getLocation(), Effect.GHAST_SHOOT, 1000);
         lectern.getLocation().getBlock().setType(Material.AIR);
 
         String[] bookSplit = bookArray[0].getItemMeta().getAsString().split("\"");
         int bookVal = Integer.parseInt(bookSplit[1]); // Value written inside book
-        p.getServer().broadcastMessage(ChatColor.BLUE + "" + bookVal);
+
+        Score rtScore = getScore(itemArray[square + 1]);
+        rtScore.setScore(bookVal);
+        square += 2;
+        interpret();
     }
 
     private Score getScore(ItemStack rt) {
@@ -240,7 +264,10 @@ public class CMDInterpreter implements CommandExecutor {
  * 
  * Instructions:
  * minecraft:fern
- * add rt rs imm (rt = rt + rs + imm)
+ * add rt rs imm (rt = rt [imm == 1 ? - : +] rs)
+ * 
+ * minecraft:fern
+ * addi rt imm (rt += imm) imm first char either - or nada.
  * 
  * minecraft:iron_nugget
  * sub rt rs imm (rt = rt - rs - imm)
