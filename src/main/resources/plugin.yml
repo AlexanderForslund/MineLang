@@ -11,3 +11,7 @@ commands:
     aliases: [ i ]
     usage: /<command> [run/reset]
     description: Interpreter commands.
+  debug:
+    aliases: [d]
+    usage: /debug [set] <registry index>
+    description: Debug commands for interpreter and registries.

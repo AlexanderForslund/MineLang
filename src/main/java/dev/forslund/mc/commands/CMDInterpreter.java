@@ -48,6 +48,10 @@ public class CMDInterpreter implements CommandExecutor {
 
         if (args[0].equals("run") && (sender instanceof Player)) {
             sender.sendMessage(ChatColor.GREEN + "Running...");
+            for (Score s : scores) {
+                s.setScore(0);
+            }
+
             this.sender = (Player) sender;
             square = 0;
             interpret();
