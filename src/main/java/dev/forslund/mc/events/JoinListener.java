@@ -6,6 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scoreboard.Scoreboard;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class JoinListener implements Listener {
     private Scoreboard sb;
 
@@ -17,5 +19,11 @@ public class JoinListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         player.setScoreboard(sb);
+
+        player.sendTitle(ChatColor.GREEN + "MineLANG", ChatColor.RED + "ඞ When the language is SUS ඞ", 50, 100, 25);
+    }
+
+    private void showMOTD() {
+
     }
 }

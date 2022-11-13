@@ -112,7 +112,7 @@ public class CMDInterpreter implements CommandExecutor {
                     add(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]);
                     square += 4;
                 } else if (itemArray[square].getType().equals(Material.MAGENTA_GLAZED_TERRACOTTA)) {
-                    square = jump(itemArray[square + 1], square); // imm
+                    jump(itemArray[square + 1], square); // imm
                 } else if (itemArray[square].getType().equals(Material.ARROW)) {
                     set(itemArray[square + 1], itemArray[square + 2]); // rt, imm
                     square += 3;
@@ -193,21 +193,40 @@ public class CMDInterpreter implements CommandExecutor {
         } catch (Exception e) {
             p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value!");
         }
-        if (immVal >= -3 && immVal <= 3) {
+        if (immVal >= -4 && immVal <= 3) {
             rtScore.setScore(rtScore.getScore() + immVal);
         } else {
-            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 3 bit, first bit is sign either - or none and values range from -3 to 3");
+            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 3 bit, first bit is sign either - or none and values range from -4 to 3");
         }
     }
 
-    private int jump(ItemStack imm, int square) {
+    private void jump(ItemStack imm, int square) {
         int immVal = 0;
         try {
             immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
         } catch (Exception e) {
             p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value!");
         }
-        return square + immVal;
+        jumpInstructions(immVal);
+    }
+
+    private void jumpInstructions(int jumps) {
+        String[] instructionBlocks = {"COMPARATOR", "FERN", "NETHER_STAR", "MAGENTA_GLAZED_TERRACOTTA", "ARROW", "DRAGON_HEAD", "OAK_SIGN", "NAME_TAG"};
+        while (jumps < 0) {
+            square--;
+            while (!Arrays.toString(instructionBlocks).contains(itemArray[square].getType().name())){
+                square--;
+            }
+            jumps++;
+        }
+
+        while (jumps > 0) {
+            square++;
+            while (!Arrays.toString(instructionBlocks).contains(itemArray[square].getType().name())){
+                square++;
+            }
+            jumps--;
+        }
     }
 
     private void set(ItemStack rt, ItemStack imm) { // rt = imm (o = 3 bits, rt = 2 bits, imm = 3 bits) (special-type)
@@ -223,8 +242,8 @@ public class CMDInterpreter implements CommandExecutor {
             p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value!");
         }
 
-        if (immVal < -3 || 3 < immVal) { // Only 3 bit happy :)
-            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 3 bit, first bit is sign either - or none and values range from -3 to 3");
+        if (immVal < -4 || 3 < immVal) { // Only 3 bit happy :)
+            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value! Maximum 3 bit, first bit is sign either - or none and values range from -4 to 3");
             return;
         }
         rtScore.setScore(immVal);
