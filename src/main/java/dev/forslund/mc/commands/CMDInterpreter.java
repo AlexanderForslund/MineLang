@@ -103,8 +103,8 @@ public class CMDInterpreter implements CommandExecutor {
                 }
 
                 if (itemArray[square].getType().equals(Material.COMPARATOR)) {
-                    jumCon(itemArray[square + 1], itemArray[square + 2]); // rt, rs
-                    square += 3;
+                    jumCon(itemArray[square + 1], itemArray[square + 2], itemArray[square + 3]); // rt, rs, imm
+                    square += 4;
                 } else if (itemArray[square].getType().equals(Material.FERN)) {
                     addi(itemArray[square + 1], itemArray[square + 2]); // rt, imm
                     square += 3;
@@ -139,10 +139,20 @@ public class CMDInterpreter implements CommandExecutor {
         p.getServer().broadcastMessage(ChatColor.BLUE + "" + rtScore.getScore());
     }
 
-    private void jumCon(ItemStack rt, ItemStack rs) {
+    private void jumCon(ItemStack rt, ItemStack rs, ItemStack imm) {
         Score rtScore = getScore(rt);
         Score rsScore = getScore(rs);
-        if (rtScore.getScore() == rsScore.getScore()) {
+
+        int immVal = -1; // inval
+        try {
+            immVal = Integer.parseInt(imm.getItemMeta().getDisplayName());
+        } catch (Exception e) {
+            p.getServer().broadcastMessage(ChatColor.RED + "Bad immediate value!");
+        }
+
+        if (rtScore.getScore() == rsScore.getScore() && immVal == 0) {
+            square++;
+        } else if (rtScore.getScore() != rsScore.getScore() && immVal == 1) {
             square++;
         }
     }
