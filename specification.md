@@ -2,39 +2,48 @@
 
 ## Instructions
 
-| **Type**  | **Encoding**                          |
-|:----------|:--------------------------------------|
-| Register  | `op<7:5>, rs<4:3>, rt<2:1>, imm<0>`   |
-| Jump      | `op<7:5>, addr<4:0>`                  |
-| Special   | `op<7:5>`                             |
+| **Type**           | **Encoding**                        |
+| :----------------- | :---------------------------------- |
+| Register-Immediate | `op<7:5>, rs<4:3>, rt<2:1>, imm<0>` |
+| Register           | `op<7:5>, rs<4:3>`                  |
+| Immediate          | `op<7:5>, rs<4:3>, imm<2:0>`        |
+| Jump               | `op<7:5>, imm<4:0>`                 |
+| Special            | `op<7:5>`                           |
 
+_Papers are used for `imm`, name them to an signed integer (following the size constraints) by using an anvil._
+
+### Register-Immediate Instructions
+
+| **Instruction** | **Syntax**            | **Description**                                                            |
+| :-------------- | :-------------------- | :------------------------------------------------------------------------- |
+| `add rt rs imm` | `Nether Star`         | `rt = rt (operator) rs` where `operator = (imm == 0: +), (imm == 1: -)`    |
+| `jeq rt rs imm` | `Redstone Comparator` | Jump one instruction if `(rt == rs && imm == 0) or (rt != rs && imm == 1)` |
 
 ### Register Instructions
-000 001 010 011
-100 101 110 111
 
-| **Instruction**   | **Syntax**            | **Description**                                                                       |
-|:------------------|:----------------------|:--------------------------------------------------------------------------------------|
-| `add  rt rs imm`  | `Nether Star`         | `rt = rt (operator) rs` where `operator = (imm == 0: +), (imm == 1: -)`               |
-| `addi rt imm`     | `Fern`                | `rt = rt + imm` where `-4 <= imm <= 3`                                                  |
-| `set  rt imm`     | `Arrow`               | `rt = imm` where `-4 <= imm <= 3`                                                                            |
-| `jeq  rt rs imm`  | `Redstone Comparator` | Jump one instruction if `(rt == rs && imm == 0) or (rt != rs && imm == 1)`            |
-| `input rt`        | `Name Tag`            | Set rt to value of integer in book placed on spawned lectern (Don't sign the book)    |
-| `print rt`        | `Oak Sign`            | Write value of rt in chat                                                             |
+| **Instruction** | **Syntax** | **Description**                                                                    |
+| :-------------- | :--------- | :--------------------------------------------------------------------------------- |
+| `input rt`      | `Name Tag` | Set rt to value of integer in book placed on spawned lectern (Don't sign the book) |
+| `print rt`      | `Oak Sign` | Write value of rt in chat                                                          |
 
-*Papers are used for `imm`, name them to an 32-bit signed integer by using an anvil.*
+### Immediate Instructions
+
+| **Instruction** | **Syntax** | **Description**                        |
+| :-------------- | :--------- | :------------------------------------- |
+| `addi rt imm`   | `Fern`     | `rt = rt + imm` where `-4 <= imm <= 3` |
+| `set rt imm`    | `Arrow`    | `rt = imm` where `-4 <= imm <= 3`      |
 
 ### Jump Instructions
 
-| **Instruction**   | **Description**                             |
-|:------------------|:--------------------------------------------|
-| `jump imm`        | Jump `imm` instructions (NOT ARGUMENTS), where `-16 <= imm <= 15`   |
+| **Instruction** | **Description**                                                   |
+| :-------------- | :---------------------------------------------------------------- |
+| `jump imm`      | Jump `imm` instructions (NOT ARGUMENTS), where `-16 <= imm <= 15` |
 
 ### Special Instructions
 
-| **Instruction**   | **Syntax**      | **Description**                                                                     |
-|:------------------|:----------------|:------------------------------------------------------------------------------------|
-| `exit`            | `Dragon Head`   | Terminate program                                                                   |
+| **Instruction** | **Syntax**    | **Description**   |
+| :-------------- | :------------ | :---------------- |
+| `exit`          | `Dragon Head` | Terminate program |
 
 ## Registers
 
@@ -42,5 +51,5 @@
 
     - Block of Netherite    = $0 (zero registry, always has value 0)
     - Block of Iron         = $r0
-    - Block of Gold         = $r1                   
+    - Block of Gold         = $r1
     - Block of Diamond      = $r2
