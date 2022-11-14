@@ -10,7 +10,7 @@
 | Jump               | `op<7:5>, imm<4:0>`                 |
 | Special            | `op<7:5>`                           |
 
-_Papers are used for `imm`, name them to an signed integer (following the size constraints) by using an anvil._
+### _Papers are used for `imm`, name them to an signed integer (following the size constraints) by using an anvil._
 
 ### Register-Immediate Instructions
 
@@ -47,9 +47,9 @@ _Papers are used for `imm`, name them to an signed integer (following the size c
 
 ## Registers
 
-    There are four registers that can hold one i32 value each. They are annotated by a block crafted by ingots. (Block of Iron, Block of Gold, Block of Diamond, Block of Netherite)
-
-    - Block of Netherite    = $0 (zero registry, always has value 0)
-    - Block of Iron         = $r0
-    - Block of Gold         = $r1
-    - Block of Diamond      = $r2
+> ### There are four registers that can hold one i32 value each. They are annotated by a block crafted by ingots. (Block of <span style="color:#ac2020">Netherite</span>, Block of <span style="color:#9A9A9A">Iron</span>, Block of <span style="color:#FECD03">Gold</span>, Block of <span style="color:#4EE2EC">Diamond</span>)
+>
+> - Block of <span style="color:#ac2020">Netherite</span> = $0 (zero registry, always has value 0) <!-- or this color #723232 -->
+> - Block of <span style="color:#9A9A9A">Iron</span> = $r0
+> - Block of <span style="color:#FECD03">Gold</span> = $r1
+> - Block of <span style="color:#4EE2EC">Diamond</span> = $r2
