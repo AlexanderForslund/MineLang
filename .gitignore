@@ -15,6 +15,9 @@
 
 # Package Files #
 *.jar
+!server\plugins\minelang-0.1.jar
+!server\paper.jar
+
 *.war
 *.nar
 *.ear
