@@ -1,0 +1,86 @@
+Title: MineLANG
+Author: Alexander Forslund <alforslu@kth.se>, Carl Liljencrantz <liljencr@kth.se>
+Description: Ingame version of the MineLANG documentation. Version 1.0
+Page1:
+This book will act as the documentation for MineLANG: A Minecraft Interpreter.
+
+Legend:
+Green: Command
+Red: Usage
+Orange: Bounds
+Register Instructions
+
+Page2:
+Register Instructions
+1. Nether Star:
+add $rt $rs imm
+(imm, 0: +, 1: -)
+
+2. Fern:
+addi $rt imm
+$rt = $rt + imm
+(-4 =< imm =< 3)
+
+3. Arrow:
+set $rt imm
+$rt = imm
+(-4 =< imm =< 3)
+
+Page3:
+Register Instructions
+4. Comparator:
+jeq $rt $rs imm
+Jump one instruction if (rt == rs && imm == 0) OR
+(rt != rs && imm == 1)
+
+More ->
+
+Page4:
+Register Instructions
+5. Name Tag:
+input $rt
+Set $rt to value of integer in book placed on spawned lectern (Don't sign the book)
+
+6. Oak Sign:
+print $rt
+Write value of $rt in chat
+
+Page5:
+Jump Instructions
+1. Magenta Glazed Terracotta:
+jump imm
+(-16 <= imm <= 15)
+
+Page6:
+Special Instructions
+1.  Dragon Head:
+exit
+Terminate program
+
+Page7:
+Registers
+Block of Netherite:
+$0
+Zero register, always 0.
+
+Block of Iron:
+$r0
+i32 register
+
+Block of Gold:
+$r1
+i32 register
+
+Page8:
+Registers
+Block of Diamond:
+$r2
+i32 register
+
+Page9:
+Thank you for creating the future of your project in MineLANG! The worlds most useless language!
+
+(But it's cool and that is all that matters) 
+
+cmd:
+/give @p written_book{pages:['["",{"text":"Version 1.0\\n\\nThis book will act as the documentation for MineLANG: A Minecraft Interpreter.\\n\\nLegend:\\n"},{"text":"Green: ","color":"dark_green"},{"text":"Command\\n","color":"reset"},{"text":"Red: ","color":"red"},{"text":"Usage","color":"black"},{"text":"\\n","color":"reset"},{"text":"Orange: ","color":"gold"},{"text":"Bounds","color":"black"}]','["",{"text":"Register Instructions","bold":true},{"text":"\\n1. ","color":"reset"},{"text":"Nether Star","hoverEvent":{"action":"show_item","contents":{"id":"nether_star"}}},{"text":":\\n"},{"text":"add $rt $rs imm","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"(imm, 0: +, 1: -)","color":"gold"},{"text":"\\n\\n2. ","color":"reset"},{"text":"Fern","hoverEvent":{"action":"show_item","contents":{"id":"fern"}}},{"text":":\\n"},{"text":"addi $rt imm","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"$rt = $rt + imm","color":"red"},{"text":"\\n","color":"reset"},{"text":"(-4 =< imm =< 3)","color":"gold"},{"text":"\\n\\n3. ","color":"reset"},{"text":"Arrow","hoverEvent":{"action":"show_item","contents":{"id":"arrow"}}},{"text":":\\n"},{"text":"set $rt imm","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"$rt = imm","color":"red"},{"text":"\\n","color":"reset"},{"text":"(-4 =< imm =< 3)","color":"gold"}]','["",{"text":"Register Instructions","bold":true},{"text":"\\n4. ","color":"reset"},{"text":"Comparator:","hoverEvent":{"action":"show_item","contents":{"id":"comparator"}}},{"text":"\\n"},{"text":"jeq $rt $rs imm","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"Jump one instruction if (rt == rs && imm == 0) OR\\n(rt != rs && imm == 1)","color":"red"}]','["",{"text":"Register Instructions","bold":true},{"text":"\\n5. ","color":"reset"},{"text":"Name Tag","hoverEvent":{"action":"show_item","contents":{"id":"name_tag"}}},{"text":":\\n"},{"text":"input $rt","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"Set $rt to value of integer in book placed on spawned lectern (Don\'t sign the book)","color":"red"},{"text":"\\n\\n","color":"reset"},{"text":"6. ","color":"black"},{"text":"Oak Sign","color":"black","hoverEvent":{"action":"show_item","contents":{"id":"oak_sign"}}},{"text":":","color":"black"},{"text":"\\n","color":"reset"},{"text":"print $rt","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"Write value of $rt in chat","color":"red"}]','["",{"text":"Jump Instructions","bold":true},{"text":"\\n1. ","color":"reset"},{"text":"Magenta Glazed Terracotta:","hoverEvent":{"action":"show_item","contents":{"id":"magenta_glazed_terracotta"}}},{"text":"\\n"},{"text":"jump imm","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"(-16 <= imm <= 15)","color":"gold"}]','["",{"text":"Special Instructions","bold":true},{"text":"\\n1. ","color":"reset"},{"text":" Dragon Head","hoverEvent":{"action":"show_item","contents":{"id":"dragon_head"}}},{"text":":\\n"},{"text":"exit","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"Terminate program","color":"red"}]','["",{"text":"Registers","bold":true},{"text":"\\n","color":"reset"},{"text":"Block of Netherite","hoverEvent":{"action":"show_item","contents":{"id":"netherite_block"}}},{"text":":\\n"},{"text":"$0","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"Zero register, always 0.","color":"red"},{"text":"\\n\\n","color":"reset"},{"text":"Block of Iron:","hoverEvent":{"action":"show_item","contents":{"id":"iron_block"}}},{"text":"\\n"},{"text":"$r0","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"i32 register","color":"red"},{"text":"\\n\\n","color":"reset"},{"text":"Block of Gold:","hoverEvent":{"action":"show_item","contents":{"id":"gold_block"}}},{"text":"\\n"},{"text":"$r1","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"i32 register","color":"red"}]','["",{"text":"Registers","bold":true},{"text":"\\n","color":"reset"},{"text":"Block of Diamond:","hoverEvent":{"action":"show_item","contents":{"id":"diamond_block"}}},{"text":"\\n"},{"text":"$r2","color":"dark_green"},{"text":"\\n","color":"reset"},{"text":"i32 register","color":"red"},{"text":"\\n ","color":"reset"}]','["",{"text":"Thank you","bold":true},{"text":" for creating the future of your project in MineLANG! The worlds most useless language!\\n\\n(But it\'s cool and that is all that matters) ","color":"reset"}]'],title:"MineLANG Documentation",author:"Alexander Forslund <alforslu@kth.se>, Carl Liljencrantz <liljencr@kth.se>",display:{Lore:["Ingame version of the MineLANG documentation."]}}

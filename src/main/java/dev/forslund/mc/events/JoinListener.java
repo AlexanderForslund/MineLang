@@ -22,8 +22,4 @@ public class JoinListener implements Listener {
 
         player.sendTitle(ChatColor.GREEN + "MineLANG", ChatColor.RED + "ඞ When the language is SUS ඞ", 50, 100, 25);
     }
-
-    private void showMOTD() {
-
-    }
 }
