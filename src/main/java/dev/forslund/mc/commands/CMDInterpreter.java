@@ -254,8 +254,8 @@ public class CMDInterpreter implements CommandExecutor {
         if (isZeroRegister(rtScore)) {
             return;
         }
-        chest.getLocation().add(2, 0, 0).getBlock().setType(Material.LECTERN);
-        Lectern lectern = (Lectern) chest.getLocation().add(2, 0, 0).getBlock().getState();
+        chest.getLocation().add(1, 0, 0).getBlock().setType(Material.LECTERN);
+        Lectern lectern = (Lectern) chest.getLocation().add(1, 0, 0).getBlock().getState();
         // chest.getLocation().add(0, -2, -2).getBlock().setType(Material.AIR);
 
         // Spawn effect
@@ -268,7 +268,7 @@ public class CMDInterpreter implements CommandExecutor {
 
     private void readInput() {
         try {
-            Lectern lectern = (Lectern) chest.getLocation().add(2, 0, 0).getBlock().getState();
+            Lectern lectern = (Lectern) chest.getLocation().add(1, 0, 0).getBlock().getState();
             ItemStack[] bookArray = lectern.getInventory().getContents();
             p.getServer().getWorld("world").playEffect(lectern.getLocation(), Effect.GHAST_SHOOT, 1000);
             lectern.getLocation().getBlock().setType(Material.AIR);
